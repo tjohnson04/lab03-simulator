@@ -14,11 +14,76 @@ public class SimBase {
     }
     /** Handles a single instruction, returning the new PC */
     public int execute(byte instruction, byte oldPC) {
+        int reserved = get_bits(instruction, 7, 8);
+        if ((reserved) == 1) {
+            return oldPC;
+        } 
+        else {
+            int A = get_bits(instruction, 2, 4);
+            int B = get_bits(instruction, 0, 2);
+            int icode = get_bits(instruction, 4, 7);
+            if (icode == 0) {
+                R[A] = R[B];
+            } 
+            else if (icode == 1) {
+                R[A] += R[B];
+            } 
+            else if (icode == 2) {
+                R[A] &= R[B];
+            }
+            else if (icode == 3) {
+                R[A] = M[R[B] & 0xFF];
+            }
+            else if (icode == 4) {
+                M[R[B] & 0xFF] = R[A];
+            }
+            else if (icode == 5) {
+                if (B == 0) {
+                    R[A] = (byte) ~R[A];
+                } 
+                else if (B == 1) {
+                    R[A] = (byte) -R[A];
+                } 
+                else if (B == 2) {
+                    if (R[A] == 0) {
+                        R[A] = 1;
+                    } 
+                    else {
+                        R[A] = 0;
+                    }
+                } 
+                else if (B == 3) {
+                    R[A] = oldPC;
+                }
+            }
+            else if (icode == 6) {
+                if (B == 0) {
+                    R[A] = M[oldPC + 1];
+                } 
+                else if (B == 1) {
+                    R[A] += M[oldPC + 1];
+                } 
+                else if (B == 2) {
+                    R[A] &= M[oldPC + 1];
+                } 
+                else if (B == 3) {
+                    R[A] = M[M[oldPC + 1] & 0xff];
+                }
+                oldPC++;
+            }
+            else if (icode == 7) {
+                if (R[A] <= 0) {
+                    return R[B];
+               }
+            }
 
+            return oldPC + 1;   
+        }  
+    }
         // to do: add instructions here
 
-        return oldPC + 1;
-    }
+        
+
 
     // memory and registers
     public byte[] M;
@@ -117,5 +182,6 @@ public class SimBase {
                 simulator.showState();
             }
         }
+        keyboard.close();
     }
 }
