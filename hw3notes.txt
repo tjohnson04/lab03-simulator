@@ -1,0 +1,32 @@
+Step 1: Read in values
+- read memory address 0x01 into register 0: 60 xx
+- read memory address 0x03 into register 1: 64 yy
+
+Step 2: Multiply
+- result = 0;
+if (1-yy <= 0) {
+    result += xx;
+    yy += -1;
+}
+jump 12
+
+r2 = 0:                         68 00
+r3 = 0xjump:                    6C jump
+if (r1 == 0) skip multiply :    77 
+r2 = r1 :                       09
+r2 = -r2 :                      59
+r1 = 1 :                        64 01
+r1 += r2 :                      16
+result = 0 in register 2:       68 00
+save pc to register 3:          5F
+increment register 3 by 3:      6D 03
+*start multiply loop*
+r2 += r0:                       18
+r1 += 1:                        65 01
+if (r1 <= 0):                   77
+
+Step 3: Store Result
+- write address to r3:          6C A0
+- store r2 @r3 (0xA0):          4B 
+
+Step 4: Halt                    FF
